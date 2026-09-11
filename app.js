@@ -1,0 +1,326 @@
+// ===== Global State =====
+const state = {
+    sentences: [],
+    currentIndex: 0,
+    correctCount: 0,
+    totalCount: 0,
+    fontSize: 20,
+    duration: 300,
+    language: 'en',
+    timerInterval: null,
+    elapsed: 0,
+    isPaused: false,
+    isTraining: false,
+    chars: [],          // DOM elements for characters
+    baselineY: 0,       // first character's Y position (reference)
+    checked: false,     // whether check has been performed on current sentence
+    allCorrect: false,  // whether all chars are correctly aligned
+};
+
+// ===== DOM References =====
+const $ = (sel) => document.querySelector(sel);
+const configScreen = $('#config-screen');
+const trainingScreen = $('#training-screen');
+const resultScreen = $('#result-screen');
+const fontSizeSelect = $('#font-size');
+const durationSelect = $('#duration');
+const languageSelect = $('#language');
+const btnStart = $('#btn-start');
+const btnCheck = $('#btn-check');
+const btnPause = $('#btn-pause');
+const btnEnd = $('#btn-end');
+const btnBack = $('#btn-back');
+const btnBackConfig = $('#btn-back-config');
+const textContainer = $('#text-container');
+const timerDisplay = $('#timer-display');
+const correctCountEl = $('#correct-count');
+const totalCountEl = $('#total-count');
+const resultTime = $('#result-time');
+const resultCorrect = $('#result-correct');
+const resultAccuracy = $('#result-accuracy');
+const resultLang = $('#result-lang');
+const hintArea = $('.hint-area');
+
+// ===== Sentence Loading =====
+async function loadSentences(lang) {
+    const file = lang === 'zh' ? 'sentences.txt' : 'sentences-en.txt';
+    try {
+        const response = await fetch(file);
+        const text = await response.text();
+        state.sentences = text
+            .split('\n')
+            .map(s => s.trim())
+            .filter(s => s.length > 0);
+    } catch (e) {
+        // Fallback sentences
+        state.sentences = lang === 'zh'
+            ? ['今天天气很好，阳光明媚。', '春天来了，万物复苏。', '千里之行，始于足下。']
+            : ['The quick brown fox jumps over the lazy dog.', 'Pack my box with five dozen liquor jugs.', 'How vexingly quick daft zebras jump.'];
+        console.warn(`Failed to load ${file}, using fallback.`, e);
+    }
+}
+
+// ===== Screen Management =====
+function showScreen(screen) {
+    configScreen.classList.remove('active');
+    trainingScreen.classList.remove('active');
+    resultScreen.classList.remove('active');
+    screen.classList.add('active');
+}
+
+// ===== Timer =====
+function formatTime(seconds) {
+    const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+    const s = (seconds % 60).toString().padStart(2, '0');
+    return `${m}:${s}`;
+}
+
+function startTimer() {
+    state.elapsed = 0;
+    timerDisplay.textContent = formatTime(state.duration);
+    state.timerInterval = setInterval(() => {
+        if (!state.isPaused) {
+            state.elapsed++;
+            const remaining = state.duration - state.elapsed;
+            timerDisplay.textContent = formatTime(remaining);
+            if (remaining <= 0) {
+                endTraining();
+            }
+        }
+    }, 1000);
+}
+
+function stopTimer() {
+    if (state.timerInterval) {
+        clearInterval(state.timerInterval);
+        state.timerInterval = null;
+    }
+}
+
+// ===== Character Positioning =====
+/**
+ * Divide the text line height into 6 equal parts.
+ * The first character's Y position is fixed (baseline).
+ * Other characters randomly shift up or down by 0-4 divisions.
+ */
+function generateOffsets(numChars) {
+    const offsets = [0]; // First character has offset 0 (reference)
+    for (let i = 1; i < numChars; i++) {
+        // Random integer from -4 to +4
+        const offset = Math.floor(Math.random() * 9) - 4;
+        offsets.push(offset);
+    }
+    return offsets;
+}
+
+function renderSentence() {
+    if (state.sentences.length === 0) return;
+
+    // Pick a random sentence
+    const idx = Math.floor(Math.random() * state.sentences.length);
+    const sentence = state.sentences[idx];
+
+    // 都按单个字符拆分
+    const items = sentence.split('');
+
+    state.currentIndex = idx;
+
+    // Calculate spacing and offsets
+    const offsets = generateOffsets(items.length);
+    const unit = state.fontSize; // Each division = font size
+    const firstCharY = 0; // Reference: first character at Y=0
+
+    // Clear container
+    textContainer.innerHTML = '';
+    textContainer.style.fontSize = state.fontSize + 'px';
+
+    state.chars = [];
+    state.checked = false;
+    state.allCorrect = false;
+
+    items.forEach((item, i) => {
+        const span = document.createElement('span');
+        span.className = 'char';
+        // 空格用不换行空格防止被 CSS 折叠
+        span.textContent = item === ' ' ? ' ' : item;
+        span.dataset.index = i;
+        span.dataset.offset = offsets[i];
+        span.style.position = 'relative';
+        span.style.top = (offsets[i] * unit) + 'px';
+
+        // 空格占位，不可点击
+        if (item === ' ') {
+            span.style.cursor = 'default';
+            span.style.pointerEvents = 'none';
+            span.style.userSelect = 'none';
+        } else if (i === 0) {
+            span.style.cursor = 'default';
+            span.style.pointerEvents = 'none';
+        } else {
+            // 其他字点击后随机跳动
+            span.addEventListener('click', () => handleClick(span, unit));
+        }
+
+        textContainer.appendChild(span);
+        state.chars.push(span);
+    });
+
+    // Update top bar
+    correctCountEl.textContent = state.correctCount;
+    totalCountEl.textContent = state.totalCount;
+
+    // Reset buttons
+    btnCheck.textContent = '检查';
+    btnCheck.classList.remove('check-done');
+    btnCheck.disabled = false;
+}
+
+function handleClick(span, unit) {
+    if (state.checked) return;
+    if (parseInt(span.dataset.index) === 0) return; // 第一个字不能点
+
+    // 调整时清除之前的检查标记
+    span.classList.remove('correct', 'incorrect');
+
+    // Generate new random offset (-4 to +4)
+    const newOffset = Math.floor(Math.random() * 9) - 4;
+    span.dataset.offset = newOffset;
+    span.style.top = (newOffset * unit) + 'px';
+    span.style.transform = 'scale(1.1)';
+    setTimeout(() => { span.style.transform = ''; }, 150);
+}
+
+// ===== Check Logic =====
+function checkAnswer() {
+    if (state.checked) {
+        // Already checked - move to next question
+        state.totalCount++;
+        state.correctCount++;
+        correctCountEl.textContent = state.correctCount;
+        totalCountEl.textContent = state.totalCount;
+        renderSentence();
+        return;
+    }
+
+    state.checked = true;
+
+    let allCorrect = true;
+    const unit = state.fontSize;
+
+    state.chars.forEach((span, i) => {
+        const offset = parseInt(span.dataset.offset);
+        if (offset === 0) {
+            // 在基准线上 — 正确，保持原位置
+            span.classList.add('correct');
+        } else {
+            // 不在基准线上 — 错误，标红，保持原位置不动
+            span.classList.add('incorrect');
+            allCorrect = false;
+        }
+    });
+
+    if (allCorrect) {
+        // 全部正确 — 记录成绩，按钮变为下一个
+        state.totalCount++;
+        state.correctCount++;
+        correctCountEl.textContent = state.correctCount;
+        totalCountEl.textContent = state.totalCount;
+        btnCheck.textContent = '下一个';
+        btnCheck.classList.add('check-done');
+    } else {
+        // 有错误 — 保持检查状态，允许重新检查
+        state.checked = false;
+        // 不清除标记，让用户看到错误，下次检查时重新判断
+    }
+}
+
+// ===== Training Control =====
+function startTraining() {
+    state.fontSize = parseInt(fontSizeSelect.value);
+    state.duration = parseInt(durationSelect.value);
+    state.language = languageSelect.value;
+    state.correctCount = 0;
+    state.totalCount = 0;
+    state.elapsed = 0;
+    state.isPaused = false;
+    state.isTraining = true;
+
+    showScreen(trainingScreen);
+    // Update hint based on language
+    const hintEl = document.querySelector('.hint');
+    hintEl.innerHTML = state.language === 'zh'
+        ? '文字随机跳动<br>第一个字为参考标准'
+        : 'Words jump randomly<br>First word is the reference';
+    hintArea.style.display = '';
+    renderSentence();
+    startTimer();
+}
+
+function togglePause() {
+    state.isPaused = !state.isPaused;
+    if (state.isPaused) {
+        btnPause.textContent = '继续';
+        hintArea.style.display = 'none';
+    } else {
+        btnPause.textContent = '暂停';
+        hintArea.style.display = '';
+    }
+}
+
+function endTraining() {
+    stopTimer();
+    state.isTraining = false;
+
+    // Calculate stats
+    resultTime.textContent = formatTime(state.elapsed);
+    resultCorrect.textContent = state.correctCount;
+    const accuracy = state.totalCount > 0
+        ? Math.round((state.correctCount / state.totalCount) * 100)
+        : 0;
+    resultAccuracy.textContent = accuracy + '%';
+    resultLang.textContent = state.language === 'zh' ? '中文' : 'English';
+
+    showScreen(resultScreen);
+}
+
+// ===== Event Bindings =====
+btnStart.addEventListener('click', () => {
+    startTraining();
+});
+
+btnCheck.addEventListener('click', () => {
+    checkAnswer();
+});
+
+btnPause.addEventListener('click', () => {
+    togglePause();
+});
+
+btnEnd.addEventListener('click', () => {
+    endTraining();
+});
+
+btnBack.addEventListener('click', () => {
+    showScreen(configScreen);
+});
+
+btnBackConfig.addEventListener('click', () => {
+    stopTimer();
+    state.isTraining = false;
+    showScreen(configScreen);
+});
+
+// Keyboard shortcut: Space for pause
+document.addEventListener('keydown', (e) => {
+    if (!state.isTraining) return;
+    if (e.code === 'Space') {
+        e.preventDefault();
+        togglePause();
+    }
+});
+
+// ===== Initialize =====
+(async function init() {
+    await loadSentences('en');
+    showScreen(configScreen);
+})();

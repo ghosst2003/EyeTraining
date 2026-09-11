@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>眼睛训练系统</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app">
+        <!-- 配置界面 -->
+        <div id="config-screen" class="screen active">
+            <h1>眼睛训练系统</h1>
+            <div class="config-panel">
+                <div class="config-row">
+                    <label>语言：</label>
+                    <select id="language">
+                        <option value="en" selected>English</option>
+                        <option value="zh">中文</option>
+                    </select>
+                </div>
+                <div class="config-row">
+                    <label>字体大小：</label>
+                    <select id="font-size">
+                        <option value="12">小 (12px)</option>
+                        <option value="16">中 (16px)</option>
+                        <option value="20">大 (20px)</option>
+                        <option value="24">超大 (24px)</option>
+                        <option value="28">特大 (28px)</option>
+                    </select>
+                </div>
+                <div class="config-row">
+                    <label>训练时间：</label>
+                    <select id="duration">
+                        <option value="60">1 分钟</option>
+                        <option value="120">2 分钟</option>
+                        <option value="300" selected>5 分钟</option>
+                        <option value="600">10 分钟</option>
+                        <option value="900">15 分钟</option>
+                    </select>
+                </div>
+                <button id="btn-start" class="btn-primary">开始训练</button>
+            </div>
+        </div>
+
+        <!-- 训练界面 -->
+        <div id="training-screen" class="screen">
+            <!-- 顶部信息栏 -->
+            <div class="top-bar">
+                <div class="score">进度：<span id="correct-count">0</span> / <span id="total-count">0</span></div>
+                <div class="sentence-text" id="sentence-display"></div>
+                <div class="timer">
+                    <span id="timer-display">00:00</span>
+                </div>
+            </div>
+
+            <!-- 提示区 -->
+            <div class="hint-area">
+                <p class="hint">文字随机跳动<br>第一个字为参考标准</p>
+            </div>
+
+            <!-- 文字训练区 -->
+            <div class="training-area">
+                <div id="text-container"></div>
+            </div>
+
+            <!-- 底部操作区 -->
+            <div class="bottom-bar">
+                <button id="btn-back-config" class="btn-action">返回</button>
+                <button id="btn-check" class="btn-action">检查</button>
+                <button id="btn-pause" class="btn-action">暂停</button>
+                <button id="btn-end" class="btn-action">结束</button>
+            </div>
+        </div>
+
+        <!-- 结果界面 -->
+        <div id="result-screen" class="screen">
+            <h1>训练完成！</h1>
+            <div class="result-panel">
+                <div class="result-stat">
+                    <span class="label">训练时长</span>
+                    <span class="value" id="result-time">00:00</span>
+                </div>
+                <div class="result-stat">
+                    <span class="label">完成题目</span>
+                    <span class="value" id="result-correct">0</span>
+                </div>
+                <div class="result-stat">
+                    <span class="label">正确率</span>
+                    <span class="value" id="result-accuracy">0%</span>
+                </div>
+                <div class="result-stat">
+                    <span class="label">语言</span>
+                    <span class="value" id="result-lang">English</span>
+                </div>
+            </div>
+            <button id="btn-back" class="btn-primary">返回配置</button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,336 @@
+/* ===== Reset & Base ===== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+    background: #f0f4f8;
+    color: #333;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.app {
+    width: 100%;
+    max-width: 900px;
+    min-height: 100vh;
+    background: #fff;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+/* ===== Screen Management ===== */
+.screen {
+    display: none;
+    flex-direction: column;
+    height: 100vh;
+}
+
+.screen.active {
+    display: flex;
+}
+
+/* ===== Config Screen ===== */
+#config-screen {
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+}
+
+#config-screen h1 {
+    font-size: 28px;
+    margin-bottom: 40px;
+    color: #1a73e8;
+    text-align: center;
+}
+
+.config-panel {
+    background: #f8f9fa;
+    border-radius: 16px;
+    padding: 40px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.config-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 24px;
+    gap: 16px;
+}
+
+.config-row label {
+    font-size: 18px;
+    font-weight: 600;
+    white-space: nowrap;
+    min-width: 80px;
+}
+
+.config-row select {
+    flex: 1;
+    padding: 12px 16px;
+    font-size: 16px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    background: #fff;
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+
+.config-row select:focus {
+    outline: none;
+    border-color: #1a73e8;
+}
+
+/* ===== Buttons ===== */
+.btn-primary {
+    display: block;
+    width: 100%;
+    padding: 14px 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: #fff;
+    background: #1a73e8;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    margin-top: 16px;
+}
+
+.btn-primary:hover {
+    background: #1557b0;
+    transform: translateY(-1px);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+.btn-action {
+    padding: 12px 28px;
+    font-size: 16px;
+    font-weight: 600;
+    border: 2px solid #1a73e8;
+    border-radius: 8px;
+    background: #fff;
+    color: #1a73e8;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-action:hover {
+    background: #1a73e8;
+    color: #fff;
+}
+
+.btn-action:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: #e0e0e0;
+    border-color: #ccc;
+    color: #999;
+}
+
+.btn-action.check-done {
+    background: #34a853;
+    border-color: #34a853;
+    color: #fff;
+}
+
+.btn-action.check-done:hover {
+    background: #2d9249;
+}
+
+/* ===== Training Screen ===== */
+#training-screen {
+    height: 100vh;
+}
+
+.top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    background: #e8f0fe;
+    border-bottom: 2px solid #1a73e8;
+    flex-shrink: 0;
+}
+
+.top-bar .score {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1a73e8;
+    white-space: nowrap;
+}
+
+.top-bar .sentence-text {
+    font-size: 14px;
+    color: #666;
+    flex: 1;
+    text-align: center;
+    margin: 0 16px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.top-bar .timer {
+    font-size: 18px;
+    font-weight: 700;
+    color: #333;
+    font-family: 'Courier New', monospace;
+    white-space: nowrap;
+}
+
+.hint-area {
+    padding: 8px 20px;
+    background: #fff9e6;
+    border-bottom: 1px solid #f0e0a0;
+    flex-shrink: 0;
+}
+
+.hint-area .hint {
+    font-size: 13px;
+    color: #856404;
+    text-align: center;
+    line-height: 1.4;
+}
+
+.training-area {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    overflow: hidden;
+}
+
+#text-container {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    /* The first character defines the baseline */
+}
+
+/* Individual character styling */
+.char {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.15s ease-out, color 0.2s;
+    user-select: none;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+.char:hover {
+    background: rgba(26, 115, 232, 0.08);
+}
+
+/* 第一个字：不可点击，无 hover */
+.char:first-child {
+    cursor: default;
+    pointer-events: none;
+}
+.char:first-child:hover {
+    background: none;
+}
+
+.char.correct {
+    color: #333 !important;
+}
+
+.char.incorrect {
+    color: #d93025 !important;
+    animation: shake 0.3s ease-in-out;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-3px); }
+    75% { transform: translateX(3px); }
+}
+
+/* ===== Bottom Bar ===== */
+.bottom-bar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-top: 2px solid #e0e0e0;
+    flex-shrink: 0;
+}
+
+/* ===== Result Screen ===== */
+#result-screen {
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+}
+
+#result-screen h1 {
+    font-size: 28px;
+    margin-bottom: 40px;
+    color: #34a853;
+}
+
+.result-panel {
+    display: flex;
+    gap: 40px;
+    background: #f8f9fa;
+    border-radius: 16px;
+    padding: 40px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.result-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.result-stat .label {
+    font-size: 14px;
+    color: #666;
+}
+
+.result-stat .value {
+    font-size: 32px;
+    font-weight: 700;
+    color: #1a73e8;
+}
+
+/* ===== Paused Overlay ===== */
+.paused-overlay {
+    display: none;
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+}
+
+.paused-overlay.visible {
+    display: flex;
+}
+
+.paused-overlay span {
+    font-size: 36px;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
