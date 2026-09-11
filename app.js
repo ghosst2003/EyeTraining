@@ -106,8 +106,8 @@ function stopTimer() {
 function generateOffsets(numChars) {
     const offsets = [0]; // First character has offset 0 (reference)
     for (let i = 1; i < numChars; i++) {
-        // Random integer from -4 to +4
-        const offset = Math.floor(Math.random() * 9) - 4;
+        // 随机整数 -8 到 +8
+        const offset = Math.floor(Math.random() * 17) - 8;
         offsets.push(offset);
     }
     return offsets;
@@ -127,12 +127,16 @@ function renderSentence() {
 
     // Calculate spacing and offsets
     const offsets = generateOffsets(items.length);
-    const unit = state.fontSize; // Each division = font size
+    const unit = state.fontSize / 16;
+    // 每次移动距离 = 字体高度的 1/16
+    // 偏移范围 -8 到 +8，最大移动 ±8 * fontSize/16 = ±fontSize/2
+    // 最终位置：文字底部不超中轴线（向上），文字顶部不超中轴线（向下）
     const firstCharY = 0; // Reference: first character at Y=0
 
     // Clear container
     textContainer.innerHTML = '';
     textContainer.style.fontSize = state.fontSize + 'px';
+    textContainer.style.lineHeight = '1';
 
     state.chars = [];
     state.checked = false;
@@ -146,7 +150,8 @@ function renderSentence() {
         span.dataset.index = i;
         span.dataset.offset = offsets[i];
         span.style.position = 'relative';
-        span.style.top = (offsets[i] * unit) + 'px';
+        // 使用 CSS 自定义属性控制位移
+        span.style.setProperty('--offset-y', `${offsets[i] * unit}px`);
 
         // 空格占位，不可点击
         if (item === ' ') {
@@ -182,12 +187,10 @@ function handleClick(span, unit) {
     // 调整时清除之前的检查标记
     span.classList.remove('correct', 'incorrect');
 
-    // Generate new random offset (-4 to +4)
-    const newOffset = Math.floor(Math.random() * 9) - 4;
+    // 新偏移 -8 到 +8
+    const newOffset = Math.floor(Math.random() * 17) - 8;
     span.dataset.offset = newOffset;
-    span.style.top = (newOffset * unit) + 'px';
-    span.style.transform = 'scale(1.1)';
-    setTimeout(() => { span.style.transform = ''; }, 150);
+    span.style.setProperty('--offset-y', `${newOffset * unit}px`);
 }
 
 // ===== Check Logic =====

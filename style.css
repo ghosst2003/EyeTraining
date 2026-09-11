@@ -231,6 +231,8 @@ body {
     user-select: none;
     border-radius: 4px;
     font-weight: 500;
+    --offset-y: 0px;
+    transform: translateY(var(--offset-y));
 }
 
 .char:hover {
@@ -256,9 +258,9 @@ body {
 }
 
 @keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-3px); }
-    75% { transform: translateX(3px); }
+    0%, 100% { transform: translateY(var(--offset-y)) translateX(0); }
+    25% { transform: translateY(var(--offset-y)) translateX(-3px); }
+    75% { transform: translateY(var(--offset-y)) translateX(3px); }
 }
 
 /* ===== Bottom Bar ===== */
