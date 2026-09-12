@@ -106,8 +106,8 @@ function stopTimer() {
 function generateOffsets(numChars) {
     const offsets = [0]; // First character has offset 0 (reference)
     for (let i = 1; i < numChars; i++) {
-        // 随机整数 -8 到 +8
-        const offset = Math.floor(Math.random() * 17) - 8;
+        // 随机整数 -4 到 +4
+        const offset = Math.floor(Math.random() * 9) - 4;
         offsets.push(offset);
     }
     return offsets;
@@ -187,8 +187,17 @@ function handleClick(span, unit) {
     // 调整时清除之前的检查标记
     span.classList.remove('correct', 'incorrect');
 
-    // 新偏移 -8 到 +8
-    const newOffset = Math.floor(Math.random() * 17) - 8;
+    // 点击循环切换位置：0 → -1 → +1 → 0（最多2次回到中轴线）
+    const currentOffset = parseInt(span.dataset.offset) || 0;
+    let newOffset;
+    if (currentOffset === 0) {
+        newOffset = -1;
+    } else if (currentOffset === -1) {
+        newOffset = 1;
+    } else {
+        newOffset = 0;
+    }
+
     span.dataset.offset = newOffset;
     span.style.setProperty('--offset-y', `${newOffset * unit}px`);
 }
@@ -212,15 +221,17 @@ function checkAnswer() {
 
     state.chars.forEach((span, i) => {
         const offset = parseInt(span.dataset.offset);
+        console.log(`Char ${i}: offset=${offset}`);
+        // 空格不参与判断
+        if (span.textContent === ' ') return;
         if (offset === 0) {
-            // 在基准线上 — 正确，保持原位置
             span.classList.add('correct');
         } else {
-            // 不在基准线上 — 错误，标红，保持原位置不动
             span.classList.add('incorrect');
             allCorrect = false;
         }
     });
+    console.log('All correct:', allCorrect);
 
     if (allCorrect) {
         // 全部正确 — 记录成绩，按钮变为下一个
