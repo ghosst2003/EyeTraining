@@ -4,7 +4,7 @@ const state = {
     currentIndex: 0,
     correctCount: 0,
     totalCount: 0,
-    fontSize: 20,
+    fontSize: 12,
     duration: 300,
     language: 'en',
     timerInterval: null,
@@ -106,8 +106,8 @@ function stopTimer() {
 function generateOffsets(numChars) {
     const offsets = [0]; // First character has offset 0 (reference)
     for (let i = 1; i < numChars; i++) {
-        // 随机整数 -4 到 +4
-        const offset = Math.floor(Math.random() * 9) - 4;
+        // 随机整数 -8 到 +8（难度翻倍）
+        const offset = Math.floor(Math.random() * 17) - 8;
         offsets.push(offset);
     }
     return offsets;
@@ -127,9 +127,9 @@ function renderSentence() {
 
     // Calculate spacing and offsets
     const offsets = generateOffsets(items.length);
-    const unit = state.fontSize / 16;
-    // 每次移动距离 = 字体高度的 1/16
-    // 偏移范围 -8 到 +8，最大移动 ±8 * fontSize/16 = ±fontSize/2
+    const unit = state.fontSize / 8;
+    // 每次移动距离 = 字体高度的 1/8（难度翻倍）
+    // 偏移范围 -8 到 +8，最大移动 ±8 * fontSize/8 = ±fontSize
     // 最终位置：文字底部不超中轴线（向上），文字顶部不超中轴线（向下）
     const firstCharY = 0; // Reference: first character at Y=0
 
@@ -178,6 +178,12 @@ function renderSentence() {
     btnCheck.textContent = '检查';
     btnCheck.classList.remove('check-done');
     btnCheck.disabled = false;
+
+    // 重置滚动位置到最左边
+    requestAnimationFrame(() => {
+        const area = $('.training-area');
+        if (area) area.scrollLeft = 0;
+    });
 }
 
 function handleClick(span, unit) {
@@ -187,13 +193,17 @@ function handleClick(span, unit) {
     // 调整时清除之前的检查标记
     span.classList.remove('correct', 'incorrect');
 
-    // 点击循环切换位置：0 → -1 → +1 → 0（最多2次回到中轴线）
+    // 点击循环切换位置：0 → -2 → -1 → +1 → +2 → 0（难度翻倍，最多4次回到中轴线）
     const currentOffset = parseInt(span.dataset.offset) || 0;
     let newOffset;
     if (currentOffset === 0) {
+        newOffset = -2;
+    } else if (currentOffset === -2) {
         newOffset = -1;
     } else if (currentOffset === -1) {
         newOffset = 1;
+    } else if (currentOffset === 1) {
+        newOffset = 2;
     } else {
         newOffset = 0;
     }
@@ -335,6 +345,41 @@ document.addEventListener('keydown', (e) => {
         togglePause();
     }
 });
+
+// ===== Drag to Scroll =====
+(function initDragScroll() {
+    const area = $('.training-area');
+    let isDown = false;
+    let startX;
+    let scrollLeft;
+
+    area.addEventListener('mousedown', (e) => {
+        // 如果点击的是字符，不触发滚动
+        if (e.target.closest('.char')) return;
+        isDown = true;
+        area.classList.add('dragging');
+        startX = e.pageX - area.offsetLeft;
+        scrollLeft = area.scrollLeft;
+    });
+
+    area.addEventListener('mouseleave', () => {
+        isDown = false;
+        area.classList.remove('dragging');
+    });
+
+    area.addEventListener('mouseup', () => {
+        isDown = false;
+        area.classList.remove('dragging');
+    });
+
+    area.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - area.offsetLeft;
+        const walk = (x - startX) * 1.5; // 滚动速度
+        area.scrollLeft = scrollLeft - walk;
+    });
+})();
 
 // ===== Initialize =====
 (async function init() {

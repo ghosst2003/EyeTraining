@@ -207,18 +207,51 @@ body {
 .training-area {
     flex: 1;
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
-    padding: 20px;
-    overflow: hidden;
+    overflow-x: auto;
+    overflow-y: hidden;
+    cursor: grab;
+    padding: 20px 0;
+}
+
+.training-area::-webkit-scrollbar {
+    height: 8px;
+}
+
+.training-area::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.training-area::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+.training-area::-webkit-scrollbar-thumb:hover {
+    background: #a1a1a1;
+}
+
+.training-area.dragging {
+    cursor: grabbing;
+}
+
+.text-wrapper {
+    display: inline-block;
+    padding-left: 40px;
+    padding-right: 40px;
+    white-space: nowrap;
 }
 
 #text-container {
     position: relative;
     display: flex;
     align-items: flex-start;
-    justify-content: center;
+    justify-content: flex-start;
     /* The first character defines the baseline */
+    white-space: nowrap;
+    width: max-content;
 }
 
 /* Individual character styling */

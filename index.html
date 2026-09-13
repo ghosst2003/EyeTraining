@@ -20,13 +20,20 @@
                     </select>
                 </div>
                 <div class="config-row">
-                    <label>字体大小：</label>
+                    <label>视力大小：</label>
                     <select id="font-size">
-                        <option value="28">特大 (28px)</option>
-                        <option value="24">超大 (24px)</option>
-                        <option value="20">大 (20px)</option>
-                        <option value="16">中 (16px)</option>
-                        <option value="12">小 (12px)</option>
+                        <option value="73">0.1</option>
+                        <option value="58">0.2</option>
+                        <option value="46">0.3</option>
+                        <option value="37">0.4</option>
+                        <option value="29">0.5</option>
+                        <option value="23">0.6</option>
+                        <option value="18">0.7</option>
+                        <option value="15">0.8</option>
+                        <option value="12" selected>1.0</option>
+                        <option value="9">1.2</option>
+                        <option value="7">1.5</option>
+                        <option value="5">2.0</option>
                     </select>
                 </div>
                 <div class="config-row">
@@ -61,7 +68,9 @@
 
             <!-- 文字训练区 -->
             <div class="training-area">
-                <div id="text-container"></div>
+                <div class="text-wrapper">
+                    <div id="text-container"></div>
+                </div>
             </div>
 
             <!-- 底部操作区 -->
