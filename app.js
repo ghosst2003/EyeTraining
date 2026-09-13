@@ -259,15 +259,18 @@ function startTraining() {
     state.isPaused = false;
     state.isTraining = true;
 
-    showScreen(trainingScreen);
-    // Update hint based on language
-    const hintEl = document.querySelector('.hint');
-    hintEl.innerHTML = state.language === 'zh'
-        ? '文字随机跳动<br>第一个字为参考标准'
-        : 'Words jump randomly<br>First word is the reference';
-    hintArea.style.display = '';
-    renderSentence();
-    startTimer();
+    // 根据语言重新加载句子
+    loadSentences(state.language).then(() => {
+        showScreen(trainingScreen);
+        // Update hint based on language
+        const hintEl = document.querySelector('.hint');
+        hintEl.innerHTML = state.language === 'zh'
+            ? '文字随机跳动<br>第一个字为参考标准'
+            : 'Words jump randomly<br>First word is the reference';
+        hintArea.style.display = '';
+        renderSentence();
+        startTimer();
+    });
 }
 
 function togglePause() {
