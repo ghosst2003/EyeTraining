@@ -379,6 +379,29 @@ document.addEventListener('keydown', (e) => {
         const walk = (x - startX) * 1.5; // 滚动速度
         area.scrollLeft = scrollLeft - walk;
     });
+
+    // 鼠标滚轮/触控板横向滚动
+    area.addEventListener('wheel', (e) => {
+        // 将垂直滚动转换为水平滚动
+        area.scrollLeft += e.deltaY || e.deltaX;
+    }, { passive: true });
+
+    // 触控板双指滑动
+    let lastTouchX = 0;
+    area.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 1) {
+            lastTouchX = e.touches[0].clientX;
+        }
+    }, { passive: true });
+
+    area.addEventListener('touchmove', (e) => {
+        if (e.touches.length === 1) {
+            const currentX = e.touches[0].clientX;
+            const diff = lastTouchX - currentX;
+            area.scrollLeft += diff;
+            lastTouchX = currentX;
+        }
+    }, { passive: true });
 })();
 
 // ===== Initialize =====
