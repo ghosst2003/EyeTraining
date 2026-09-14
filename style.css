@@ -253,6 +253,7 @@ body {
     /* The first character defines the baseline */
     white-space: nowrap;
     width: max-content;
+    letter-spacing: 4px;
 }
 
 /* Individual character styling */
