@@ -127,9 +127,9 @@ function renderSentence() {
 
     // Calculate spacing and offsets
     const offsets = generateOffsets(items.length);
-    const unit = state.fontSize / 8;
-    // 每次移动距离 = 字体高度的 1/8（难度翻倍）
-    // 偏移范围 -8 到 +8，最大移动 ±8 * fontSize/8 = ±fontSize
+    const unit = state.fontSize / 4;
+    // 每次移动距离 = 字体高度的 1/4
+    // 偏移范围 -4 到 +4，最大移动 ±4 * fontSize/4 = ±fontSize
     // 最终位置：文字底部不超中轴线（向上），文字顶部不超中轴线（向下）
     const firstCharY = 0; // Reference: first character at Y=0
 
@@ -193,21 +193,8 @@ function handleClick(span, unit) {
     // 调整时清除之前的检查标记
     span.classList.remove('correct', 'incorrect');
 
-    // 点击循环切换位置：0 → -2 → -1 → +1 → +2 → 0（难度翻倍，最多4次回到中轴线）
-    const currentOffset = parseInt(span.dataset.offset) || 0;
-    let newOffset;
-    if (currentOffset === 0) {
-        newOffset = -2;
-    } else if (currentOffset === -2) {
-        newOffset = -1;
-    } else if (currentOffset === -1) {
-        newOffset = 1;
-    } else if (currentOffset === 1) {
-        newOffset = 2;
-    } else {
-        newOffset = 0;
-    }
-
+    // 点击后随机上下移动，偏移 -4 到 +4（单位 = fontSize/4）
+    const newOffset = Math.floor(Math.random() * 9) - 4;
     span.dataset.offset = newOffset;
     span.style.setProperty('--offset-y', `${newOffset * unit}px`);
 }
