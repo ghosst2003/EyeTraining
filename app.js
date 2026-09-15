@@ -106,8 +106,8 @@ function stopTimer() {
 function generateOffsets(numChars) {
     const offsets = [0]; // First character has offset 0 (reference)
     for (let i = 1; i < numChars; i++) {
-        // 随机整数 -8 到 +8（难度翻倍）
-        const offset = Math.floor(Math.random() * 17) - 8;
+        // 随机整数 -1 到 +1，最大跳动 ±fontSize/4
+        const offset = Math.floor(Math.random() * 3) - 1;
         offsets.push(offset);
     }
     return offsets;
@@ -193,8 +193,8 @@ function handleClick(span, unit) {
     // 调整时清除之前的检查标记
     span.classList.remove('correct', 'incorrect');
 
-    // 点击后随机上下移动，偏移 -4 到 +4（单位 = fontSize/4）
-    const newOffset = Math.floor(Math.random() * 9) - 4;
+    // 点击后随机上下移动，偏移 -1 到 +1（单位 = fontSize/4）
+    const newOffset = Math.floor(Math.random() * 3) - 1;
     span.dataset.offset = newOffset;
     span.style.setProperty('--offset-y', `${newOffset * unit}px`);
 }
